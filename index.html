@@ -344,7 +344,7 @@
             { hr: "užitak", en: ["pleasure", "enjoyment"] },
             { hr: "zadovoljstvo", en: ["satisfaction"] },
             { hr: "zaposlenik", en: ["employee"] },
-            { hr: "brinuti se", en: ["to take care of", "to worry"] },
+            { hr: "brinuti se", en: ["to worry"] },
             { hr: "omogućavati", en: ["to enable", "to allow"] },
             { hr: "osjećati", en: ["to feel"] },
             { hr: "počinjati", en: ["to start", "to begin"] },
@@ -353,14 +353,14 @@
             { hr: "slagati se", en: ["to get along"] },
             { hr: "steći", en: ["to acquire", "to gain"] },
             { hr: "uključivati", en: ["to include"] },
-            { hr: "voditi računa", en: ["to keep in mind", "to take care"] },
+            { hr: "voditi računa", en: ["to keep in mind", "to take care of"] },
             { hr: "završiti", en: ["to finish"] },
             { hr: "veseliti se", en: ["to look forward to"] },
             { hr: "osobni", en: ["personal"] },
-            { hr: "svijetao", en: ["bright", "light"] },
-            { hr: "ured", en: ["office"] }, // Modified from "uredski" / "office" to match requested noun form
+            { hr: "svijetao", en: ["bright", "luminous"] },
+            { hr: "ured", en: ["office"] },
             { hr: "vrijedan", en: ["valuable", "worth it"] },
-            { hr: "zadovoljan", en: ["satisfied"] }, // Cleaned up slightly to prevent confusion with "happy"
+            { hr: "zadovoljan", en: ["satisfied"] },
             { hr: "međusobno", en: ["mutual", "each other"] },
             { hr: "godišnji izvještaj", en: ["annual report"] },
             { hr: "izvještaj", en: ["report"] },
@@ -379,7 +379,7 @@
             { hr: "iskustvo", en: ["experience"] },
             { hr: "obrazovanje", en: ["education"] },
             { hr: "rodni list", en: ["birth certificate"] },
-            { hr: "domovnica", en: ["citizenship certificate", "id"] },
+            { hr: "domovnica", en: ["citizenship certificate"] },
             { hr: "odrasti", en: ["to grow up"] },
             { hr: "ovisiti o", en: ["to depend on"] },
             { hr: "nadgledati", en: ["to oversee", "to supervise"] },
@@ -390,7 +390,7 @@
             { hr: "kužiti", en: ["to understand", "to get it"] },
             { hr: "spašavati", en: ["to save", "to rescue"] },
             { hr: "težak", en: ["heavy", "difficult"] },
-            { hr: "naporan", en: ["exhausting", "demanding"] },
+            { hr: "naporan", en: ["exhausting", "strenuous"] },
             { hr: "odgovoran", en: ["responsible"] },
             { hr: "ležeran", en: ["casual", "laid-back"] },
             { hr: "lagan", en: ["easy", "light"] },
@@ -469,7 +469,7 @@
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('feedback').style.display = 'none';
             document.getElementById('next-btn').style.display = 'none';
-            document.getElementById('submit-btn').style.display = 'block'; // Show check button again
+            document.getElementById('submit-btn').style.display = 'block';
             document.getElementById('answer-input').value = '';
             document.getElementById('answer-input').disabled = false;
 
@@ -660,7 +660,7 @@
 
             answered = true;
             input.disabled = true;
-            document.getElementById('submit-btn').style.display = 'none'; // Hide check button on submit
+            document.getElementById('submit-btn').style.display = 'none';
 
             let isCorrect = false;
             let validAnswersString = "";
