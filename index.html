@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Croatian Vocab Learner</title>
+    <style>
+        :root {
+            --bg-color: #f7fafc;
+            --card-color: #ffffff;
+            --primary: #2b6cb0;
+            --primary-hover: #2c5282;
+            --success: #2f855a;
+            --success-bg: #f0fff4;
+            --success-border: #c6f6d5;
+            --error: #c53030;
+            --error-bg: #fff5f5;
+            --error-border: #fed7d7;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-color);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 16px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .card {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 12px 6px;
+        }
+
+        .prompt-word {
+            font-size: clamp(24px, 7vw, 36px);
+            font-weight: 800;
+            margin: 6px 0;
+            line-height: 1.2;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            color: #1a202c;
+        }
+
+        .direction-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            background: #edf2f7;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a5568;
+            margin-top: 6px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        @media (min-width: 400px) {
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        button.option-btn {
+            background: var(--card-color);
+            border: 2px solid var(--border);
+            padding: 16px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 56px;
+            word-break: break-word;
+        }
+
+        button.option-btn:hover {
+            border-color: var(--primary);
+            background: #f7fafc;
+            transform: translateY(-1px);
+        }
+
+        button.option-btn:active {
+            transform: translateY(0);
+        }
+
+        .input-area {
+            width: 100%;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 500;
+            -webkit-appearance: none;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        }
+
+        .char-pad {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        .char-btn {
+            background: #edf2f7;
+            border: 1px solid var(--border);
+            padding: 10px 0;
+            flex: 1 0 calc(20% - 6px);
+            min-width: 40px;
+            max-width: 60px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+            text-align: center;
+            transition: background 0.1s;
+        }
+
+        .char-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .char-btn:active {
+            background: #cbd5e0;
+        }
+
+        .submit-btn,
+        .next-btn {
+            width: 100%;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.15s;
+            touch-action: manipulation;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .next-btn {
+            margin-top: 16px;
+            background: #4a5568;
+        }
+
+        .next-btn:hover {
+            background: #2d3748;
+        }
+
+        .feedback {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            display: block !important;
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success-border);
+        }
+
+        .feedback.wrong {
+            display: block !important;
+            background: var(--error-bg);
+            color: var(--error);
+            border: 1px solid var(--error-border);
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        .reset-btn:hover {
+            color: var(--error);
+        }
+
+        @media (max-width: 350px) {
+            .container {
+                padding: 16px;
+            }
+
+            .prompt-word {
+                font-size: 24px;
+            }
+
+            button.option-btn {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Idemo! Vocab Trainer</h1>
+
+        <div class="stats">
+            <span id="progress-text">Loading...</span>
+            <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
+        </div>
+
+        <div class="card">
+            <div class="direction-label" id="direction-label">Translation</div>
+            <div class="prompt-word" id="prompt-word">---</div>
+            <div class="mode-badge" id="mode-badge">Multiple Choice</div>
+        </div>
+
+        <!-- Interface for Multiple Choice -->
+        <div id="multiple-choice-ui" class="options-grid"></div>
+
+        <!-- Interface for Text Typing -->
+        <div id="typing-ui" class="input-area" style="display: none;">
+            <div class="char-pad" id="char-pad"></div>
+            <input type="text" id="answer-input" class="text-input" placeholder="Type answer here..." autocomplete="off"
+                autocapitalize="none">
+            <button class="submit-btn" id="submit-btn" onclick="checkTypingAnswer()">Check Answer</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+        <button id="next-btn" class="next-btn" style="display: none;" onclick="nextQuestion()">Next Word →</button>
+    </div>
+
+    <script>
+        const vocabularyDataset = [
+            { hr: "izazov", en: ["challenge"] },
+            { hr: "obaveza", en: ["obligation", "chore"] },
+            { hr: "odjel", en: ["department"] },
+            { hr: "pisač", en: ["printer"] },
+            { hr: "razvoj", en: ["development"] },
+            { hr: "tvrtka", en: ["company"] },
+            { hr: "užitak", en: ["pleasure", "enjoyment"] },
+            { hr: "zadovoljstvo", en: ["satisfaction"] },
+            { hr: "zaposlenik", en: ["employee"] },
+            { hr: "brinuti se", en: ["to take care of", "to worry"] },
+            { hr: "omogućavati", en: ["to enable", "to allow"] },
+            { hr: "osjećati", en: ["to feel"] },
+            { hr: "počinjati", en: ["to start", "to begin"] },
+            { hr: "pomagati", en: ["to help"] },
+            { hr: "provjeriti", en: ["to check"] },
+            { hr: "slagati se", en: ["to get along"] },
+            { hr: "steći", en: ["to acquire", "to gain"] },
+            { hr: "uključivati", en: ["to include"] },
+            { hr: "voditi računa", en: ["to keep in mind", "to take care"] },
+            { hr: "završiti", en: ["to finish"] },
+            { hr: "veseliti se", en: ["to look forward to"] },
+            { hr: "osobni", en: ["personal"] },
+            { hr: "svijetao", en: ["bright", "light"] },
+            { hr: "ured", en: ["office"] }, // Modified from "uredski" / "office" to match requested noun form
+            { hr: "vrijedan", en: ["valuable", "worth it"] },
+            { hr: "zadovoljan", en: ["satisfied"] }, // Cleaned up slightly to prevent confusion with "happy"
+            { hr: "međusobno", en: ["mutual", "each other"] },
+            { hr: "godišnji izvještaj", en: ["annual report"] },
+            { hr: "izvještaj", en: ["report"] },
+            { hr: "smeće", en: ["trash", "garbage"] },
+            { hr: "fascikl", en: ["folder"] },
+            { hr: "ostali", en: ["other"] },
+            { hr: "staviti", en: ["to put", "to place"] },
+            { hr: "sastanak", en: ["meeting"] },
+            { hr: "kemijska olovka", en: ["ballpen", "pen"] },
+            { hr: "stol", en: ["table", "desk"] },
+            { hr: "važno", en: ["important"] },
+            { hr: "poslodavac", en: ["employer"] },
+            { hr: "ponašati se", en: ["to behave", "to act"] },
+            { hr: "samouvjeren", en: ["self-confident"] },
+            { hr: "životopis", en: ["cv", "resume"] },
+            { hr: "iskustvo", en: ["experience"] },
+            { hr: "obrazovanje", en: ["education"] },
+            { hr: "rodni list", en: ["birth certificate"] },
+            { hr: "domovnica", en: ["citizenship certificate", "id"] },
+            { hr: "odrasti", en: ["to grow up"] },
+            { hr: "ovisiti o", en: ["to depend on"] },
+            { hr: "nadgledati", en: ["to oversee", "to supervise"] },
+            { hr: "rok", en: ["deadline"] },
+            { hr: "pretjerivati", en: ["to overdo", "to exaggerate"] },
+            { hr: "oprezan", en: ["cautious", "careful"] },
+            { hr: "nevjerojatan", en: ["incredible", "unbelievable"] },
+            { hr: "kužiti", en: ["to understand", "to get it"] },
+            { hr: "spašavati", en: ["to save", "to rescue"] },
+            { hr: "težak", en: ["heavy", "difficult"] },
+            { hr: "naporan", en: ["exhausting", "demanding"] },
+            { hr: "odgovoran", en: ["responsible"] },
+            { hr: "ležeran", en: ["casual", "laid-back"] },
+            { hr: "lagan", en: ["easy", "light"] },
+            { hr: "zanimljiv", en: ["interesting"] },
+            { hr: "kreativan", en: ["creative"] },
+            { hr: "neunosan", en: ["unprofitable"] },
+            { hr: "dosadan", en: ["boring"] },
+            { hr: "nekreativan", en: ["uncreative"] },
+            { hr: "unosan", en: ["lucrative", "profitable"] },
+            { hr: "bez odgovornosti", en: ["without responsibility"] },
+            { hr: "zaposliti", en: ["to hire", "to employ"] },
+            { hr: "potpisati", en: ["to sign"] },
+            { hr: "plaća", en: ["salary", "pay"] },
+            { hr: "kolega", en: ["colleague", "coworker"] },
+            { hr: "radno vrijeme", en: ["working hours"] },
+            { hr: "godišnji odmor", en: ["annual leave", "vacation"] },
+            { hr: "posao", en: ["job", "work"] },
+            { hr: "pauza", en: ["break"] },
+            { hr: "slati", en: ["to send"] },
+            { hr: "primiti", en: ["to receive"] },
+            { hr: "organizirati", en: ["to organize"] },
+            { hr: "poruka", en: ["message"] },
+            { hr: "obavijest", en: ["notice", "notification"] },
+            { hr: "točan", en: ["punctual", "accurate"] },
+            { hr: "stresan", en: ["stressful"] }
+        ];
+
+        const UNLOCK_TYPING_SCORE = 3;
+        const croChars = ['č', 'ć', 'đ', 'š', 'ž'];
+
+        let state = {};
+        let currentItem = null;
+        let currentDirection = "hr-to-en";
+        let currentMode = "choice";
+        let answered = false;
+
+        function initStorage() {
+            const saved = localStorage.getItem('croatian_vocab_state');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch (e) {
+                    state = {};
+                }
+            } else {
+                state = {};
+            }
+
+            vocabularyDataset.forEach((item, index) => {
+                const id = `word_${index}`;
+                if (!state[id]) {
+                    state[id] = {
+                        id: id,
+                        score_hr_to_en: 0,
+                        score_en_to_hr: 0
+                    };
+                }
+            });
+            saveStorage();
+        }
+
+        function saveStorage() {
+            localStorage.setItem('croatian_vocab_state', JSON.stringify(state));
+        }
+
+        function resetProgress() {
+            if (confirm("Are you sure you want to reset all your learning history?")) {
+                localStorage.removeItem('croatian_vocab_state');
+                initStorage();
+                nextQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            answered = false;
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'block'; // Show check button again
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').disabled = false;
+
+            currentDirection = Math.random() > 0.5 ? "hr-to-en" : "en-to-hr";
+            const scoreField = currentDirection === "hr-to-en" ? "score_hr_to_en" : "score_en_to_hr";
+
+            let weights = [];
+            let totalWeight = 0;
+
+            vocabularyDataset.forEach((item, index) => {
+                const id = `word_${index}`;
+                const itemState = state[id] || { score_hr_to_en: 0, score_en_to_hr: 0 };
+                const currentScore = itemState[scoreField];
+                const weight = Math.max(1, 10 - (currentScore * 3));
+
+                weights.push({ index: index, weight: weight });
+                totalWeight += weight;
+            });
+
+            let randomRoll = Math.random() * totalWeight;
+            let chosenIndex = 0;
+
+            for (let i = 0; i < weights.length; i++) {
+                randomRoll -= weights[i].weight;
+                if (randomRoll <= 0) {
+                    chosenIndex = weights[i].index;
+                    break;
+                }
+            }
+
+            currentItem = vocabularyDataset[chosenIndex];
+            const id = `word_${chosenIndex}`;
+            const itemState = state[id];
+            const currentScore = itemState[scoreField];
+
+            currentMode = currentScore >= UNLOCK_TYPING_SCORE ? "typing" : "choice";
+
+            updateUI(itemState, currentScore);
+        }
+
+        function updateUI(itemState, score) {
+            const promptWordEl = document.getElementById('prompt-word');
+            const directionLabelEl = document.getElementById('direction-label');
+            const modeBadgeEl = document.getElementById('mode-badge');
+            const choiceUI = document.getElementById('multiple-choice-ui');
+            const typingUI = document.getElementById('typing-ui');
+            const charPad = document.getElementById('char-pad');
+
+            updateStatsUI();
+
+            if (currentDirection === "hr-to-en") {
+                directionLabelEl.innerText = "Translate Croatian to English";
+                promptWordEl.innerText = currentItem.hr;
+            } else {
+                directionLabelEl.innerText = "Translate English to Croatian";
+                promptWordEl.innerText = currentItem.en[Math.floor(Math.random() * currentItem.en.length)];
+            }
+
+            if (currentMode === "choice") {
+                modeBadgeEl.innerText = `Multiple Choice (Level ${score}/${UNLOCK_TYPING_SCORE})`;
+                choiceUI.style.display = "grid";
+                typingUI.style.display = "none";
+                generateMultipleChoiceOptions();
+            } else {
+                modeBadgeEl.innerText = `Type Answer (Expert Mode: Level ${score})`;
+                choiceUI.style.display = "none";
+                typingUI.style.display = "block";
+
+                charPad.innerHTML = '';
+                if (currentDirection === "en-to-hr") {
+                    croChars.forEach(char => {
+                        const btn = document.createElement('button');
+                        btn.className = 'char-btn';
+                        btn.innerText = char;
+                        btn.onclick = () => insertCharacter(char);
+                        charPad.appendChild(btn);
+                    });
+                }
+                if (window.innerWidth > 600) {
+                    document.getElementById('answer-input').focus();
+                }
+            }
+        }
+
+        function updateStatsUI() {
+            let totalLevels = vocabularyDataset.length * 2;
+            let clearedLevels = 0;
+
+            vocabularyDataset.forEach((item, index) => {
+                const s = state[`word_${index}`];
+                if (s) {
+                    if (s.score_hr_to_en >= UNLOCK_TYPING_SCORE) clearedLevels++;
+                    if (s.score_en_to_hr >= UNLOCK_TYPING_SCORE) clearedLevels++;
+                }
+            });
+
+            document.getElementById('progress-text').innerText = `Mastered: ${clearedLevels} / ${totalLevels}`;
+        }
+
+        function insertCharacter(char) {
+            if (answered) return;
+            const input = document.getElementById('answer-input');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            input.value = text.substring(0, start) + char + text.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + 1;
+        }
+
+        function generateMultipleChoiceOptions() {
+            const choiceUI = document.getElementById('multiple-choice-ui');
+            choiceUI.innerHTML = '';
+
+            let correctAnswer = currentDirection === "hr-to-en" ? currentItem.en[0] : currentItem.hr;
+            let pool = [];
+
+            vocabularyDataset.forEach(item => {
+                if (currentDirection === "hr-to-en") {
+                    if (item.hr !== currentItem.hr) pool.push(item.en[0]);
+                } else {
+                    if (item.hr !== currentItem.hr) pool.push(item.hr);
+                }
+            });
+
+            pool.sort(() => 0.5 - Math.random());
+            let choices = pool.slice(0, 3);
+            choices.push(correctAnswer);
+            choices.sort(() => 0.5 - Math.random());
+
+            choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = choice;
+                btn.onclick = () => checkChoiceAnswer(choice, btn);
+                choiceUI.appendChild(btn);
+            });
+        }
+
+        function checkChoiceAnswer(selectedAnswer, clickedButton) {
+            if (answered) return;
+            answered = true;
+
+            let isCorrect = false;
+            let expectedDisplay = "";
+
+            if (currentDirection === "hr-to-en") {
+                isCorrect = currentItem.en.map(v => v.toLowerCase().trim()).includes(selectedAnswer.toLowerCase().trim());
+                expectedDisplay = currentItem.en.join(" / ");
+            } else {
+                isCorrect = (currentItem.hr.toLowerCase().trim() === selectedAnswer.toLowerCase().trim());
+                expectedDisplay = currentItem.hr;
+            }
+
+            if (isCorrect) {
+                clickedButton.style.background = "#c6f6d5";
+                clickedButton.style.borderColor = "var(--success)";
+            } else {
+                clickedButton.style.background = "#fed7d7";
+                clickedButton.style.borderColor = "var(--error)";
+
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => {
+                    if (currentDirection === "hr-to-en") {
+                        if (currentItem.en.map(v => v.toLowerCase().trim()).includes(btn.innerText.toLowerCase().trim())) {
+                            btn.style.background = "#c6f6d5";
+                            btn.style.borderColor = "var(--success)";
+                        }
+                    } else {
+                        if (btn.innerText.toLowerCase().trim() === currentItem.hr.toLowerCase().trim()) {
+                            btn.style.background = "#c6f6d5";
+                            btn.style.borderColor = "var(--success)";
+                        }
+                    }
+                });
+            }
+
+            handleAnswerOutcome(isCorrect, expectedDisplay);
+        }
+
+        function checkTypingAnswer() {
+            if (answered) return;
+
+            const input = document.getElementById('answer-input');
+            const cleanUserAnswer = input.value.trim().toLowerCase();
+
+            if (!cleanUserAnswer) return;
+
+            answered = true;
+            input.disabled = true;
+            document.getElementById('submit-btn').style.display = 'none'; // Hide check button on submit
+
+            let isCorrect = false;
+            let validAnswersString = "";
+
+            if (currentDirection === "hr-to-en") {
+                isCorrect = currentItem.en.map(v => v.toLowerCase().trim()).includes(cleanUserAnswer);
+                validAnswersString = currentItem.en.join(" or ");
+            } else {
+                isCorrect = (currentItem.hr.toLowerCase().trim() === cleanUserAnswer);
+                validAnswersString = currentItem.hr;
+            }
+
+            handleAnswerOutcome(isCorrect, validAnswersString);
+        }
+
+        function handleAnswerOutcome(isCorrect, correctAnswerDisplay) {
+            const itemKey = Object.keys(state).find(k => {
+                const vocabIdx = parseInt(k.split('_')[1]);
+                return vocabularyDataset[vocabIdx] && vocabularyDataset[vocabIdx].hr === currentItem.hr;
+            });
+
+            const itemState = state[itemKey];
+            const scoreField = currentDirection === "hr-to-en" ? "score_hr_to_en" : "score_en_to_hr";
+            const feedbackEl = document.getElementById('feedback');
+
+            if (isCorrect) {
+                itemState[scoreField] += 1;
+                feedbackEl.innerText = "✓ Correct!";
+                feedbackEl.className = "feedback correct";
+            } else {
+                itemState[scoreField] = Math.max(0, itemState[scoreField] - 1);
+                feedbackEl.innerText = `✗ Expected: "${correctAnswerDisplay}"`;
+                feedbackEl.className = "feedback wrong";
+            }
+
+            saveStorage();
+            document.getElementById('next-btn').style.display = "block";
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                if (!answered) {
+                    checkTypingAnswer();
+                } else {
+                    nextQuestion();
+                }
+            }
+        });
+
+        initStorage();
+        nextQuestion();
+    </script>
+
+</body>
+
+</html>
