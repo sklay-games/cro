@@ -415,7 +415,43 @@
             { hr: "poruka", en: ["message"] },
             { hr: "obavijest", en: ["notice", "notification"] },
             { hr: "točan", en: ["punctual", "accurate"] },
-            { hr: "stresan", en: ["stressful"] }
+            { hr: "stresan", en: ["stressful"] },
+            { hr: "ljubazan", en: ["kind", "polite"] },
+            { hr: "srdačan", en: ["cordial", "warm-hearted"] },
+            { hr: "nježan", en: ["gentle", "tender"] },
+            { hr: "povučen", en: ["introverted", "withdrawn"] },
+            { hr: "grub", en: ["rough", "rude"] },
+            { hr: "mrzovoljan", en: ["grumpy", "moody"] },
+            { hr: "bezobrazan", en: ["rude", "insolent"] },
+            { hr: "lijep", en: ["beautiful", "pretty"] },
+            { hr: "velik", en: ["big", "large"] },
+            { hr: "glasan", en: ["loud"] },
+            { hr: "simpatičan", en: ["likable", "nice"] },
+            { hr: "zgodan", en: ["handsome", "good-looking"] },
+            { hr: "crnokos", en: ["black-haired"] },
+            { hr: "komunikativan", en: ["communicative", "talkative"] },
+            { hr: "mlad", en: ["young"] },
+            { hr: "dobar", en: ["good"] },
+            { hr: "nizak", en: ["short", "low"] },
+            { hr: "pristojan", en: ["polite", "well-mannered"] },
+            { hr: "mali", en: ["small", "little"] },
+            { hr: "otvoren", en: ["open", "outgoing"] },
+            { hr: "star", en: ["old"] },
+            { hr: "duhovit", en: ["witty", "funny"] },
+            { hr: "znatiželjan", en: ["curious", "inquisitive"] },
+            { hr: "visok", en: ["tall", "high"] },
+            { hr: "plavokos", en: ["blonde", "fair-haired"] },
+            { hr: "škrt", en: ["stingy", "mean"] },
+            { hr: "tvrdoglav", en: ["stubborn"] },
+            { hr: "iskren", en: ["honest", "sincere"] },
+            { hr: "jednostavan", en: ["simple", "easygoing"] },
+            { hr: "neozbiljan", en: ["silly", "not serious"] },
+            { hr: "mršav", en: ["thin", "skinny"] },
+            { hr: "hrabar", en: ["brave", "courageous"] },
+            { hr: "optimističan", en: ["optimistic"] },
+            { hr: "skroman", en: ["modest", "humble"] },
+            { hr: "suosjećajan", en: ["compassionate", "sympathetic"] },
+            { hr: "prilagodljiv", en: ["adaptable", "flexible"] }
         ];
 
         const UNLOCK_TYPING_SCORE = 3;
@@ -483,7 +519,7 @@
                 const id = `word_${index}`;
                 const itemState = state[id] || { score_hr_to_en: 0, score_en_to_hr: 0 };
                 const currentScore = itemState[scoreField];
-                const weight = Math.max(1, 10 - (currentScore * 3));
+                const weight = Math.max(0.1, 10 * Math.pow(0.5, currentScore));
 
                 weights.push({ index: index, weight: weight });
                 totalWeight += weight;
