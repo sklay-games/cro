@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Croatian Medical & Health Vocabulary Trainer</title>
+    <style>
+        :root {
+            --primary: #2b6cb0;
+            --primary-light: #ebf8ff;
+            --success: #38a169;
+            --danger: #e53e3e;
+            --danger-light: #fff5f5;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 5px; }
+
+        /* Progress Layout Container */
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .progress-container {
+            background-color: var(--border);
+            border-radius: 10px;
+            height: 24px;
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            font-size: 13px;
+            line-height: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Sub-controls Bar for Shuffle Options */
+        .sub-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            background: var(--card-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .toggle-container input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            margin: 0;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Card Face Base */
+        .display-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            min-height: 120px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Flashcard Styles */
+        .card-container {
+            perspective: 1000px;
+            height: 250px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .card.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+
+        .card-back { transform: rotateY(180deg); background: var(--primary-light); }
+        .word { font-size: 26px; font-weight: bold; text-align: center; }
+        .example { font-size: 15px; color: #718096; margin-top: 15px; text-align: center; font-style: italic; }
+
+        /* Quiz Buttons */
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover { border-color: var(--primary); }
+
+        /* Recall / Input Elements */
+        .recall-input-group {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .text-input:focus { border-color: var(--primary); }
+
+        .diacritics-bar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .char-btn {
+            padding: 10px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .char-btn:hover { background: var(--primary-light); }
+
+        .feedback-message {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 24px;
+            margin-top: 5px;
+        }
+
+        /* Controls layout */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-audio { background: #4a5568; color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-reset { padding: 0 15px; height: 24px; font-size: 12px; border-radius: 4px; line-height: 24px; }
+
+        /* List View Styles */
+        .vocab-list {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .vocab-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .vocab-item:last-child { border-bottom: none; }
+        
+        .mastered-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Croatian-English Health Vocabulary</h1>
+        <p>Master medical terms, anatomy, and common idioms</p>
+    </header>
+
+    <div class="progress-wrapper">
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0 / 0 Mastered (0%)</div>
+        </div>
+        <button class="btn btn-danger btn-reset" onclick="resetProgress()">Reset</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('flashcards')">Flashcards</button>
+        <button class="tab-btn" onclick="switchTab('quiz')">Multiple Choice</button>
+        <button class="tab-btn" onclick="switchTab('recall')">Active Recall</button>
+        <button class="tab-btn" onclick="switchTab('list')">All Words</button>
+    </div>
+
+    <!-- Interactive Sub-Controls for Flashcard Deck Configurations -->
+    <div class="sub-controls" id="flashcardSubControls">
+        <label class="toggle-container">
+            <input type="checkbox" id="shuffleToggle" onchange="toggleShuffle(this.checked)">
+            <span>🔀 Shuffle Cards</span>
+        </label>
+    </div>
+
+    <!-- Flashcards Panel -->
+    <div id="flashcards-panel" class="panel active">
+        <div class="card-container" onclick="toggleFlip()">
+            <div class="card" id="flashcard">
+                <div class="card-face card-front">
+                    <div class="word" id="cardCro">Riječ</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="word" id="cardEng">Word</div>
+                    <div class="example" id="cardEx">Example sentence here...</div>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="prevCard()">Previous</button>
+            <button class="btn btn-audio" onclick="speakCurrentCard()">🔊 Listen</button>
+            <button class="btn btn-success" onclick="markMasteredCurrent()">Mark Mastered ✓</button>
+            <button class="btn btn-main" onclick="nextCard()">Next</button>
+        </div>
+    </div>
+
+    <!-- Quiz Panel -->
+    <div id="quiz-panel" class="panel">
+        <div class="display-box">
+            <div class="word" id="quizQuestion">Question Word</div>
+        </div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="controls">
+            <button class="btn btn-main" style="width: 100%;" onclick="generateQuiz()">Next Question →</button>
+        </div>
+    </div>
+
+    <!-- Active Recall Panel -->
+    <div id="recall-panel" class="panel">
+        <div class="display-box" style="background: var(--primary-light)">
+            <div class="word" id="recallQuestion" style="font-size: 22px;">English Translation</div>
+        </div>
+        
+        <div class="recall-input-group">
+            <div class="diacritics-bar">
+                <button class="char-btn" onclick="insertChar('č')">č</button>
+                <button class="char-btn" onclick="insertChar('ć')">ć</button>
+                <button class="char-btn" onclick="insertChar('đ')">đ</button>
+                <button class="char-btn" onclick="insertChar('š')">š</button>
+                <button class="char-btn" onclick="insertChar('ž')">ž</button>
+            </div>
+            <input type="text" id="recallInput" class="text-input" placeholder="Type the Croatian word/phrase..." autocomplete="off" onkeydown="handleRecallKey(event)">
+            <div id="recallFeedback" class="feedback-message"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="revealRecallAnswer()">Reveal Answer</button>
+            <button class="btn btn-main" onclick="checkRecallAnswer()">Check Answer</button>
+            <button class="btn btn-success" id="recallNextBtn" onclick="generateRecall()" style="display:none;">Next Word →</button>
+        </div>
+    </div>
+
+    <!-- List View Panel -->
+    <div id="list-panel" class="panel">
+        <div class="vocab-list" id="listView"></div>
+    </div>
+</div>
+
+<script>
+    const vocabData = [
+        { cro: "alergija na pelud", eng: "allergy to pollen", ex: "U proljeće imam jaku alergiju na pelud." },
+        { cro: "anatomija", eng: "anatomy" },
+        { cro: "antihistamin", eng: "antihistamine" },
+        { cro: "artritis", eng: "arthritis" },
+        { cro: "bedro", eng: "thigh" },
+        { cro: "biti mamuran", eng: "to be hungover", ex: "Popio je previše vina i danas će biti mamuran." },
+        { cro: "blaga temperatura", eng: "mild fever" },
+        { cro: "blaži", eng: "milder" },
+        { cro: "bolovati", eng: "to suffer from / to be ill" },
+        { cro: "brijati", eng: "to shave" },
+        { cro: "brinuti se", eng: "to worry / to take care of" },
+        { cro: "brisati", eng: "to wipe / to erase" },
+        { cro: "cjelovita žitarica", eng: "whole grain" },
+        { cro: "crijevo", eng: "intestine / bowel" },
+        { cro: "curiti nos", eng: "runny nose", ex: "Hladno je i vani mi stalno curi nos." },
+        { cro: "debljanje", eng: "weight gain" },
+        { cro: "depresija", eng: "depression" },
+        { cro: "dijabetes", eng: "diabetes" },
+        { cro: "disati", eng: "to breathe" },
+        { cro: "dizati zdravicu", eng: "to raise a toast" },
+        { cro: "doktor", eng: "doctor" },
+        { cro: "držati fige", eng: "to keep one's fingers crossed", ex: "Držim fige da tvoj nalaz bude dobar!" },
+        { cro: "duboko izdahnuti", eng: "to exhale deeply" },
+        { cro: "duboko udahnuti", eng: "to inhale deeply", ex: "Liječnik mi je rekao: Molim vas, duboko udahnite." },
+        { cro: "fizičko zdravlje", eng: "physical health" },
+        { cro: "glavobolja", eng: "headache" },
+        { cro: "grlo", eng: "throat" },
+        { cro: "gubiti zdrav razum", eng: "to lose one's sanity" },
+        { cro: "hidratacija", eng: "hydration" },
+        { cro: "higijena", eng: "hygiene" },
+        { cro: "hormon", eng: "hormone" },
+        { cro: "hrana", eng: "food" },
+        { cro: "iscrpljen", eng: "exhausted" },
+        { cro: "isključiti", eng: "to exclude / to turn off" },
+        { cro: "istraživanje", eng: "research / study" },
+        { cro: "izbjegavati", eng: "to avoid" },
+        { cro: "izbor", eng: "choice / selection" },
+        { cro: "izgubiti", eng: "to lose" },
+        { cro: "izmjeriti temperaturu", eng: "to take one's temperature", ex: "Moram si izmjeriti temperaturu jer mi je vruće." },
+        { cro: "javiti se", eng: "to contact / to check in" },
+        { cro: "kašljati", eng: "to cough" },
+        { cro: "kihati", eng: "to sneeze" },
+        { cro: "koljeno", eng: "knee" },
+        { cro: "kost", eng: "bone" },
+        { cro: "koža", eng: "skin" },
+        { cro: "krema sa zaštitnim faktorom", eng: "sunscreen" },
+        { cro: "krvni tlak", eng: "blood pressure" },
+        { cro: "kvalitetan", eng: "high-quality" },
+        { cro: "leđa", eng: "back" },
+        { cro: "lice", eng: "face" },
+        { cro: "lijek", eng: "medicine / medication" },
+        { cro: "liječnik", eng: "doctor / physician" },
+        { cro: "mamurluk", eng: "hangover" },
+        { cro: "mentalna higijena", eng: "mental hygiene" },
+        { cro: "mentalno zdravlje", eng: "mental health" },
+        { cro: "micati", eng: "to move" },
+        { cro: "mišić", eng: "muscle" },
+        { cro: "mozak", eng: "brain" },
+        { cro: "nalaz", eng: "medical finding / test result", ex: "Čekam nalaz krvi od jučer." },
+        { cro: "namirnica", eng: "grocery / foodstuff" },
+        { cro: "napitak", eng: "drink / beverage" },
+        { cro: "navika", eng: "habit" },
+        { cro: "noga", eng: "leg / foot" },
+        { cro: "nokat", eng: "nail" },
+        { cro: "nositi se", eng: "to cope / to deal with" },
+        { cro: "oblik gripe", eng: "form of flu" },
+        { cro: "oko", eng: "eye" },
+        { cro: "orašasti plod", eng: "nut" },
+        { cro: "osjećati se", eng: "to feel" },
+        { cro: "otkaz", eng: "cancellation / resignation" },
+        { cro: "palac", eng: "thumb / big toe" },
+        { cro: "plakati", eng: "to cry" },
+        { cro: "plod", eng: "fruit / crop" },
+        { cro: "pluća", eng: "lungs" },
+        { cro: "pogoršati se", eng: "to worsen / to get worse" },
+        { cro: "pomagati", eng: "to help" },
+        { cro: "poslušati pluća", eng: "to listen to the lungs", ex: "Doktor će vam poslušati pluća." },
+        { cro: "potkoljenica", eng: "shin / lower leg" },
+        { cro: "potrajati", eng: "to last" },
+        { cro: "povraćati", eng: "to vomit" },
+        { cro: "pregled", eng: "medical examination / check-up", ex: "Sutra ujutro imam dogovoren pregled." },
+        { cro: "prehlada", eng: "cold" },
+        { cro: "prehlađen", eng: "having a cold" },
+        { cro: "prehrana", eng: "nutrition / diet" },
+        { cro: "preporučivati", eng: "to recommend" },
+        { cro: "pridržavati se", eng: "to adhere to / to follow" },
+        { cro: "primiti", eng: "to receive / to accept" },
+        { cro: "pričekati", eng: "to wait" },
+        { cro: "protein", eng: "protein" },
+        { cro: "prsa", eng: "chest" },
+        { cro: "pucati od zdravlja", eng: "to burst with health", ex: "Izgledaš sjajno, pucaš od zdravlja!" },
+        { cro: "puhati", eng: "to blow" },
+        { cro: "pušenje", eng: "smoking" },
+        { cro: "rame", eng: "shoulder" },
+        { cro: "razina", eng: "level" },
+        { cro: "razlog", eng: "reason" },
+        { cro: "raznolik", eng: "diverse / varied" },
+        { cro: "raznoliko i umjereno", eng: "diverse and moderate" },
+        { cro: "razvijati", eng: "to develop" },
+        { cro: "razvijati kreativnost", eng: "to develop creativity" },
+        { cro: "recept", eng: "prescription / recipe" },
+        { cro: "redovito", eng: "regularly" },
+        { cro: "rendgen", eng: "X-ray" },
+        { cro: "ruka", eng: "arm / hand" },
+        { cro: "rutina spavanja", eng: "sleep routine" },
+        { cro: "savjet", eng: "advice / tip" },
+        { cro: "simptom", eng: "symptom" },
+        { cro: "sjesti", eng: "to sit down" },
+        { cro: "slomljena noga", eng: "broken leg" },
+        { cro: "smanjivati", eng: "to reduce / to decrease" },
+        { cro: "srce", eng: "heart" },
+        { cro: "stalan", eng: "constant" },
+        { cro: "stopalo", eng: "foot" },
+        { cro: "stres", eng: "stress" },
+        { cro: "sunčanica", eng: "sunstroke" },
+        { cro: "sustav", eng: "system" },
+        { cro: "tekućina", eng: "fluid / liquid" },
+        { cro: "temelj sreće", eng: "foundation of happiness" },
+        { cro: "tijelo", eng: "body" },
+        { cro: "toksin", eng: "toxin" },
+        { cro: "trbuh", eng: "belly / stomach" },
+        { cro: "trbušna viroza", eng: "stomach flu" },
+        { cro: "u tvoje zdravlje", eng: "to your health / cheers" },
+        { cro: "ugljikohidrat", eng: "carbohydrate" },
+        { cro: "uho", eng: "ear" },
+        { cro: "upala grla", eng: "sore throat / throat inflammation" },
+        { cro: "upaljen", eng: "inflamed" },
+        { cro: "uputnica", eng: "medical referral", ex: "Trebam uputnicu za specijalistički pregled." },
+        { cro: "usta", eng: "mouth" },
+        { cro: "uzimati lijek", eng: "to take medicine" },
+        { cro: "uzimati sirup", eng: "to take syrup" },
+        { cro: "uzimati tabletu", eng: "to take a pill" },
+        { cro: "uzrokovati", eng: "to cause" },
+        { cro: "uživo", eng: "live / in person" },
+        { cro: "vaditi krv", eng: "to draw blood", ex: "Išao sam vaditi krv rano ujutro." },
+        { cro: "vitak", eng: "slender / slim" },
+        { cro: "vrat", eng: "neck" },
+        { cro: "zabrinutost", eng: "concern / worry" },
+        { cro: "zagušena pluća", eng: "congested lungs" },
+        { cro: "zakazan termin", eng: "scheduled appointment" },
+        { cro: "zapravo", eng: "actually / in fact" },
+        { cro: "zdrav kao dren", eng: "as fit as a fiddle / healthy as a cornel tree", ex: "Nakon oporavka, opet sam zdrav kao dren." },
+        { cro: "zdrava mast", eng: "healthy fat" },
+        { cro: "zdrava navika", eng: "healthy habit" },
+        { cro: "zdravlje", eng: "health" },
+        { cro: "zub", eng: "tooth" },
+        { cro: "zubar", eng: "dentist" },
+        { cro: "zubobolja", eng: "toothache" },
+        { cro: "čudna faza života", eng: "strange phase of life" },
+        { cro: "šmrcati", eng: "to sniffle" },
+        { cro: "želja", eng: "wish / desire" },
+        { cro: "živ i zdrav", eng: "alive and well" }
+    ];
+
+    let masteredWords = JSON.parse(localStorage.getItem('croVocavMastered')) || [];
+    let currentIndex = 0;
+    let currentRecallTarget = null;
+    
+    // Shuffle system tracking lists
+    let isShuffled = false;
+    let activeDeckIndexes = [...vocabData.keys()]; // Maps running cards index pointers
+
+    let quizRoundTainted = false;
+    let recallRoundTainted = false;
+
+    /* Global Speech Synthesis Engine Wrapper */
+    function speakCroatian(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hr-HR';
+            
+            const voices = window.speechSynthesis.getVoices();
+            const hrVoice = voices.find(voice => voice.lang.toLowerCase().replace('_', '-').startsWith('hr'));
+            if (hrVoice) utterance.voice = hrVoice;
+            
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function saveProgress() {
+        localStorage.setItem('croVocavMastered', JSON.stringify(masteredWords));
+        updateProgressBar();
+    }
+
+    function updateProgressBar() {
+        const total = vocabData.length;
+        const masteredCount = masteredWords.length;
+        const percentage = Math.round((masteredCount / total) * 100) || 0;
+        
+        document.getElementById('progressBar').style.width = percentage + '%';
+        document.getElementById('progressText').innerText = `${masteredCount} / ${total} Mastered (${percentage}%)`;
+    }
+
+    function resetProgress() {
+        if (confirm("Are you sure you want to reset your study history? This will uncheck all mastered terms.")) {
+            masteredWords = [];
+            saveProgress();
+            
+            const activeTabButton = document.querySelector('.tab-btn.active');
+            if (activeTabButton) {
+                const label = activeTabButton.innerText.toLowerCase();
+                if (label.includes('choice')) generateQuiz();
+                if (label.includes('recall')) generateRecall();
+                if (label.includes('words')) renderListView();
+            }
+        }
+    }
+
+    function switchTab(tab) {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(`${tab}-panel`).classList.add('active');
+
+        // Toggle configuration options visibility dynamically based on active pane selection
+        const configBar = document.getElementById('flashcardSubControls');
+        if (tab === 'flashcards') {
+            configBar.style.display = 'flex';
+        } else {
+            configBar.style.display = 'none';
+        }
+
+        if(tab === 'quiz') generateQuiz();
+        if(tab === 'recall') generateRecall();
+        if(tab === 'list') renderListView();
+    }
+
+    /* Flashcard Handling & Shuffle Mechanics */
+    function toggleShuffle(shouldShuffle) {
+        isShuffled = shouldShuffle;
+        const currentWord = vocabData[activeDeckIndexes[currentIndex]]; // Keep track of current item context
+        
+        activeDeckIndexes = [...vocabData.keys()];
+        
+        if (isShuffled) {
+            // Fisher-Yates array shuffle algorithm runtime sequence mapping
+            for (let i = activeDeckIndexes.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeDeckIndexes[i], activeDeckIndexes[j]] = [activeDeckIndexes[j], activeDeckIndexes[i]];
+            }
+        }
+
+        // Remap current index pointer to ensure a seamless toggle without visual jumping
+        if (currentWord) {
+            const targetIdx = vocabData.findIndex(item => item.cro === currentWord.cro);
+            const remappedIdx = activeDeckIndexes.indexOf(targetIdx);
+            if (remappedIdx !== -1) currentIndex = remappedIdx;
+        }
+
+        showCard();
+    }
+
+    function showCard() {
+        // Resolve vocabulary indices using active sequence pointers
+        const rawIndex = activeDeckIndexes[currentIndex];
+        const item = vocabData[rawIndex];
+        
+        document.getElementById('flashcard').classList.remove('flipped');
+        document.getElementById('cardCro').innerText = item.cro;
+        document.getElementById('cardEng').innerText = item.eng; 
+        document.getElementById('cardEx').innerText = item.ex ? `Context: "${item.ex}"` : "";
+    }
+
+    function toggleFlip() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function speakCurrentCard() {
+        const rawIndex = activeDeckIndexes[currentIndex];
+        speakCroatian(vocabData[rawIndex].cro);
+    }
+
+    function nextCard() {
+        currentIndex = (currentIndex + 1) % activeDeckIndexes.length;
+        showCard();
+    }
+
+    function prevCard() {
+        currentIndex = (currentIndex - 1 + activeDeckIndexes.length) % activeDeckIndexes.length;
+        showCard();
+    }
+
+    function markMasteredCurrent() {
+        const rawIndex = activeDeckIndexes[currentIndex];
+        const currentWord = vocabData[rawIndex].cro;
+        if (!masteredWords.includes(currentWord)) {
+            masteredWords.push(currentWord);
+            saveProgress();
+        }
+        nextCard();
+    }
+
+    /* Quiz Logic */
+    function generateQuiz() {
+        quizRoundTainted = false; 
+        const unmastered = vocabData.filter(item => !masteredWords.includes(item.cro));
+        const pool = unmastered.length > 0 ? unmastered : vocabData;
+        const correctAnswer = pool[Math.floor(Math.random() * pool.length)];
+        
+        document.getElementById('quizQuestion').innerText = correctAnswer.cro;
+        speakCroatian(correctAnswer.cro);
+
+        let options = [correctAnswer];
+        while(options.length < 4) {
+            let randItem = vocabData[Math.floor(Math.random() * vocabData.length)];
+            if(!options.includes(randItem)) options.push(randItem);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const optionsContainer = document.getElementById('quizOptions');
+        optionsContainer.innerHTML = '';
+        
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.eng;
+            btn.onclick = () => {
+                if(opt.cro === correctAnswer.cro) {
+                    btn.style.backgroundColor = '#c6f6d5';
+                    btn.style.borderColor = 'var(--success)';
+                    
+                    if(!quizRoundTainted && !masteredWords.includes(correctAnswer.cro)) {
+                        masteredWords.push(correctAnswer.cro);
+                        saveProgress();
+                    }
+                } else {
+                    btn.style.backgroundColor = '#fed7d7';
+                    btn.style.borderColor = '#e53e3e';
+                    quizRoundTainted = true; 
+                }
+            };
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    /* Active Recall Mode Logic */
+    function generateRecall() {
+        recallRoundTainted = false; 
+        const unmastered = vocabData.filter(item => !masteredWords.includes(item.cro));
+        const pool = unmastered.length > 0 ? unmastered : vocabData;
+        currentRecallTarget = pool[Math.floor(Math.random() * pool.length)];
+
+        document.getElementById('recallQuestion').innerText = currentRecallTarget.eng;
+        const inputField = document.getElementById('recallInput');
+        inputField.value = '';
+        inputField.style.borderColor = 'var(--border)';
+        
+        const feedback = document.getElementById('recallFeedback');
+        feedback.innerText = '';
+        feedback.style.color = 'inherit';
+
+        document.getElementById('recallNextBtn').style.display = 'none';
+        inputField.focus();
+    }
+
+    function checkRecallAnswer() {
+        if (!currentRecallTarget) return;
+        const inputField = document.getElementById('recallInput');
+        const feedback = document.getElementById('recallFeedback');
+        const userAnswer = inputField.value.trim().toLowerCase();
+        const correctAnswer = currentRecallTarget.cro.toLowerCase();
+
+        const options = correctAnswer.split('/').map(s => s.trim());
+
+        if (options.includes(userAnswer) || userAnswer === correctAnswer) {
+            feedback.innerText = "Correct! Živio/Živjela!";
+            feedback.style.color = 'var(--success)';
+            inputField.style.borderColor = 'var(--success)';
+            
+            speakCroatian(currentRecallTarget.cro);
+
+            if(!recallRoundTainted && !masteredWords.includes(currentRecallTarget.cro)) {
+                masteredWords.push(currentRecallTarget.cro);
+                saveProgress();
+            }
+            document.getElementById('recallNextBtn').style.display = 'inline-block';
+        } else {
+            feedback.innerText = "Try again! Double check spelling and diacritics.";
+            feedback.style.color = '#e53e3e';
+            inputField.style.borderColor = '#e53e3e';
+            recallRoundTainted = true; 
+        }
+    }
+
+    function revealRecallAnswer() {
+        if (!currentRecallTarget) return;
+        const feedback = document.getElementById('recallFeedback');
+        feedback.innerText = `Answer: ${currentRecallTarget.cro}`;
+        feedback.style.color = 'var(--primary)';
+        recallRoundTainted = true; 
+        document.getElementById('recallNextBtn').style.display = 'inline-block';
+    }
+
+    function insertChar(char) {
+        const inputField = document.getElementById('recallInput');
+        const start = inputField.selectionStart;
+        const end = inputField.selectionEnd;
+        const text = inputField.value;
+        
+        inputField.value = text.substring(0, start) + char + text.substring(end);
+        inputField.selectionStart = inputField.selectionEnd = start + 1;
+        inputField.focus();
+    }
+
+    function handleRecallKey(event) {
+        if (event.key === 'Enter') {
+            if (document.getElementById('recallNextBtn').style.display === 'inline-block') {
+                generateRecall();
+            } else {
+                checkRecallAnswer();
+            }
+        }
+    }
+
+    /* List View Logic */
+    function renderListView() {
+        const container = document.getElementById('listView');
+        container.innerHTML = '';
+        vocabData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'vocab-item';
+            
+            const isChecked = masteredWords.includes(item.cro) ? 'checked' : '';
+            
+            div.innerHTML = `
+                <div>
+                    <strong>${item.cro}</strong> - <span>${item.eng}</span>
+                    ${item.ex ? `<br><small style="color: #718096">${item.ex}</small>` : ''}
+                </div>
+                <input type="checkbox" class="mastered-checkbox" ${isChecked} onchange="toggleMasteredList('${item.cro}')">
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function toggleMasteredList(croWord) {
+        if(masteredWords.includes(croWord)) {
+            masteredWords = masteredWords.filter(w => w !== croWord);
+        } else {
+            masteredWords.push(croWord);
+        }
+        saveProgress();
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = window.speechSynthesis.getVoices;
+        }
+    }
+
+    // Init initialization calls
+    showCard();
+    updateProgressBar();
+</script>
+
+</body>
+</html>
